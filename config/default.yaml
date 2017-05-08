@@ -1,0 +1,81 @@
+%YAML:1.0
+# data
+# the tum dataset directory, change it to yours! 
+#dataset_dir: /home/mobile/Downloads/Code/slambook/project/rgbd_dataset_freiburg1_xyz
+
+# camera intrinsics
+camera.cx: 325.5
+camera.cy: 253.5
+camera.fx: 518.0
+camera.fy: 519.0
+camera.scale: 1000.0
+
+#icp 迭代间隔帧数
+iterative_interval: 5
+start_index: 1
+end_index: 50
+
+# 网格滤波器点云分辨率
+grid_size: 0.01
+
+#直通滤波器z方向范围参数
+z_min: 0.0
+z_max: 4.0
+
+#移除离群点滤波器参数
+#进行统计时考虑查询点临近点数
+MeanK: 50
+#判断是否为离群点的阈值
+outlier_threshold: 1.0
+
+#是否显示点云
+show_cloud: 1
+
+first_depth_addr: ./depth_png/1.png
+
+# VO paras
+#number_of_features: 500
+#scale_factor: 1.2
+#level_pyramid: 8
+#match_ratio: 2.0
+##max_num_lost: 10
+#min_inliers: 10
+#keyframe_rotation: 0.1
+#keyframe_translation: 0.1
+
+# part 4 里定义的参数
+
+#detector: ORB
+#descriptor: ORB
+#good_match_threshold: 10
+
+
+# part 4 里定义的参数
+#detector=ORB
+#descriptor=ORB
+# 筛选good match的倍数
+#good_match_threshold=10
+
+# 数据所在目录
+#rgb_dir: /home/mobile/Downloads/Code/rgbd-slam-tutorial-gx/data/rgb_png/
+#rgb_extension: .png
+#depth_dir: /home/mobile/Downloads/Code/rgbd-slam-tutorial-gx/data/depth_png/
+#depth_extension: .png
+
+# 是否实时可视化
+#visualize_pointcloud: yes
+# 最小匹配数量
+#min_good_match: 10
+# 最小内点
+#min_inliers: 5
+# 最大运动误差
+#max_norm: 0.2
+
+# part 7
+#keyframe_threshold: 0.1
+#max_norm_lp: 2.0
+# Loop closure
+#check_loop_closure: yes
+#nearby_loops: 5
+#random_loops: 5
+
