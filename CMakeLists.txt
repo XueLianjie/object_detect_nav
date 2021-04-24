@@ -8,7 +8,7 @@ set( CMAKE_BUILD_TYPE Release )
 include_directories("/usr/include/eigen3/")
 
 #OpenCV
-find_package(OpenCV 3 REQUIRED)
+find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 #PCL

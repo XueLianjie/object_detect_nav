@@ -41,7 +41,7 @@ int main( int argc, char** argv )
   int v1(0);
   pclvisualizer->createViewPort(0.0,0.0,0.5,1.0,v1);
   pclvisualizer->setBackgroundColor(150,150,150,v1);
-  pclvisualizer->addCoordinateSystem(1.0, v1);
+  pclvisualizer->addCoordinateSystem(0.2, v1);
   int v2(1);
   pclvisualizer->createViewPort(0.5,0.0,1.0,1.0,v2);
   pclvisualizer->setBackgroundColor(150,150,150,v2);
@@ -49,7 +49,7 @@ int main( int argc, char** argv )
   
   //pcl::visualization::CloudViewer viewer("cloud");//点云显示
   
-  pcl::PointCloud<pcl::PointXYZ>::Ptr pPointCloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr pPointCloud(new pcl::PointCloud<pcl::PointXYZ>), cloud_p(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
   pcl::SACSegmentationFromNormals<pcl::PointXYZ, pcl::Normal> seg;
   pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
@@ -57,20 +57,36 @@ int main( int argc, char** argv )
   pcl::ExtractIndices<pcl::PointXYZ> extract;//点提取对象**需要包含#include<pcl/filters/extract_indices.h>
   pcl::ExtractIndices<pcl::Normal> extract_normals;//点提取对象
   
-  
+      pcl::PassThrough<pcl::PointXYZ> pass; //直通滤波器,截取点云区域
   pcl::ModelCoefficients::Ptr coefficients_plane (new pcl::ModelCoefficients); //coefficients_cylinder(new pcl::ModelCoefficients);
   pcl::PointIndices::Ptr inliers_plane(new pcl::PointIndices);
   
   
   char key=0,times=0; 
-  Kinectreader reader;
-  reader.Init();
+  //Kinectreader reader;
+  //reader.Init();
   while(key != 27)
   {
-    reader.ReadKinect();
+    //reader.ReadKinect();
     //reader.ShowDepthAndImg();
-    pPointCloud = reader.ToPointCloud();	    
+    //pPointCloud = reader.ToPointCloud();	 
+    pcl::io::loadPCDFile (argv[1], *cloud_p);
+    pass.setInputCloud(cloud_p);
+    pass.setFilterFieldName("x");
+    pass.setFilterLimits(-1.0, 2.0);
+    pass.filter(*cloud_p);
+
+    pass.setInputCloud(cloud_p);
+    pass.setFilterFieldName("z");
+    pass.setFilterLimits(0.3, 2.6);
+    pass.filter(*cloud_p);
+
+    pass.setInputCloud(cloud_p);
+    pass.setFilterFieldName("y");
+    pass.setFilterLimits(-2, 2);
+    pass.filter(*pPointCloud);
     
+
     //点云分割
     /*
      * 先计算点云的法向量
@@ -90,7 +106,7 @@ int main( int argc, char** argv )
     seg.setNormalDistanceWeight(0.08);
     seg.setMethodType(pcl::SAC_RANSAC);
     seg.setMaxIterations(100);
-    seg.setDistanceThreshold(0.06);
+    seg.setDistanceThreshold(0.08);
     seg.setInputCloud(pPointCloud);
     seg.setInputNormals(cloud_normals);
     //执行分割，获取模型参数和内点
@@ -123,7 +139,7 @@ int main( int argc, char** argv )
 
     pclvisualizer->removeAllPointClouds(0);//viewport = 0
     pclvisualizer->removeAllShapes(0);
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color_red(cloud_plane, 255, 0, 0);//红色地面点云
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color_red(cloud_plane,  0, 255,0);//红色地面点云
     pclvisualizer->addPointCloud<pcl::PointXYZ> (cloud_plane, single_color_red, "plane");//添加红色地面点云
 
     
@@ -262,7 +278,7 @@ int main( int argc, char** argv )
       ss3 << "cluster" << j;
       pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color_cluster(cloud_cluster, j*100%256, j*200%256, (j+200)*300%256);//设置地面上物体点云为纯绿色
       pclvisualizer->addPointCloud<pcl::PointXYZ> (cloud_cluster, single_color_cluster, ss1.str(),v1);//添加绿色点云并设置ID号为“no_plane”
-      pclvisualizer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, ss1.str(),v1);//地面上物体点云设置大小为2
+      pclvisualizer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, ss1.str(),v1);//地面上物体点云设置大小为2
 
       pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color_projected_cluster(projected_cluster, j*100%256, j*200%256, (j+200)*300%256);//设置地面上物体点云为纯绿色
       pclvisualizer->addPointCloud<pcl::PointXYZ> (projected_cluster, single_color_projected_cluster, ss2.str(),v2);//添加绿色点云并设置ID号为“no_plane”
@@ -291,8 +307,9 @@ int main( int argc, char** argv )
     pclvisualizer->spinOnce(100);//这一句必须得加，以更新使得视窗可以读取数据和显示
     key=cvWaitKey(20);//必须得加上此句，来让深度图和彩图顺利显示
     */
+
   }
-  reader.StopRead();
+  //reader.StopRead();
   
   return 0; 
 }
